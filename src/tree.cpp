@@ -2375,9 +2375,9 @@ void tree::gp_predict_from_root(matrix<size_t> &Xorder_std, std::unique_ptr<X_st
             throw;
         }
         // assign mu 
-        for (size_t i = 0; i < Ntest; i++){
-            yhats_test_xinfo[sweeps][Xtestorder_std[0][i]] += this->theta_vector[0];
-        }
+        // for (size_t i = 0; i < Ntest; i++){
+        //     yhats_test_xinfo[sweeps][Xtestorder_std[0][i]] += this->theta_vector[0];
+        // }
         
         // construct covariance matrix
         size_t p_active = std::accumulate(active_var.begin(), active_var.begin() + p - p_categorical, 0);
@@ -2387,23 +2387,25 @@ void tree::gp_predict_from_root(matrix<size_t> &Xorder_std, std::unique_ptr<X_st
         }
        
         // check out of range test sets
-        std::vector<size_t> test_ind;
-        std::vector<bool> active_var_left(active_var.size(), true); // check which side the outliers are on for each active var
-        for (size_t i = 0; i < Ntest; i++){
-            for (size_t j = 0; j < p_continuous; j++){
-                if (active_var[j]){
-                    if (*(xtest_struct->X_std + xtest_struct->n_y * j + Xtestorder_std[j][i]) > x_struct->X_range[j][1]){
-                        test_ind.push_back(Xtestorder_std[j][i]);
-                        active_var_left[j] = false;
-                        break;
-                    }
-                    if (*(xtest_struct->X_std + xtest_struct->n_y * j + Xtestorder_std[j][i]) < x_struct->X_range[j][0]){ 
-                        test_ind.push_back(Xtestorder_std[j][i]);
-                        break;
-                    }
-                }
-            }
-        }
+        std::vector<size_t> test_ind(Xtestorder_std[0].size());
+        std::copy(Xtestorder_std[0].begin(), Xtestorder_std[0].end(), test_ind.begin());
+
+        // std::vector<bool> active_var_left(active_var.size(), true); // check which side the outliers are on for each active var
+        // for (size_t i = 0; i < Ntest; i++){
+        //     for (size_t j = 0; j < p_continuous; j++){
+        //         if (active_var[j]){
+        //             if (*(xtest_struct->X_std + xtest_struct->n_y * j + Xtestorder_std[j][i]) > x_struct->X_range[j][1]){
+        //                 test_ind.push_back(Xtestorder_std[j][i]);
+        //                 active_var_left[j] = false;
+        //                 break;
+        //             }
+        //             if (*(xtest_struct->X_std + xtest_struct->n_y * j + Xtestorder_std[j][i]) < x_struct->X_range[j][0]){ 
+        //                 test_ind.push_back(Xtestorder_std[j][i]);
+        //                 break;
+        //             }
+        //         }
+        //     }
+        // }
 
         Ntest = test_ind.size();
         if (Ntest == 0){
@@ -2417,24 +2419,32 @@ void tree::gp_predict_from_root(matrix<size_t> &Xorder_std, std::unique_ptr<X_st
             std::copy(Xorder_std[0].begin(), Xorder_std[0].end(), train_ind.begin());
         }
         else {
-            // get training set that's most adjacent to outliers on active variables
-            size_t N_active = 100 / p_active; // number of data to get per active var 
-            N = N_active * p_active;
-            train_ind.resize(N);
-            size_t i_count = 0;
-            for (size_t i = 0; i < active_var.size(); i++){
-                if (active_var[i]){
-                    if (active_var_left[i]){
-                        // get the smallest values (the first N_active obs in Xorder_std[i])
-                        std::copy(Xorder_std[i].begin(), Xorder_std[i].begin() + N_active, train_ind.begin() + i_count);
-                    }
-                    else {
-                        // get the largest values 
-                        std::copy(Xorder_std[i].end() - N_active, Xorder_std[i].end(), train_ind.begin() + i_count);      
-                    }
-                    i_count += N_active;
-                }
-            }
+            train_ind.resize(100);
+            // std::sample(Xorder_std[0].begin(), Xorder_std[0].end(), train_ind.begin(), 100, x_struct->gen);
+            std::shuffle(Xorder_std[0].begin(), Xorder_std[0].end(), x_struct->gen);
+            std::copy(Xorder_std[0].begin(), Xorder_std[0].begin() + 100, train_ind.begin());
+            N = 100;
+            // randomly sample 100 training data
+            // x_struct->gen
+
+            // // get training set that's most adjacent to outliers on active variables
+            // size_t N_active = 100 / p_active; // number of data to get per active var 
+            // N = N_active * p_active;
+            // train_ind.resize(N);
+            // size_t i_count = 0;
+            // for (size_t i = 0; i < active_var.size(); i++){
+            //     if (active_var[i]){
+            //         if (active_var_left[i]){
+            //             // get the smallest values (the first N_active obs in Xorder_std[i])
+            //             std::copy(Xorder_std[i].begin(), Xorder_std[i].begin() + N_active, train_ind.begin() + i_count);
+            //         }
+            //         else {
+            //             // get the largest values 
+            //             std::copy(Xorder_std[i].end() - N_active, Xorder_std[i].end(), train_ind.begin() + i_count);      
+            //         }
+            //         i_count += N_active;
+            //     }
+            // }
         }
 
         if (N == 0){
@@ -2483,7 +2493,7 @@ void tree::gp_predict_from_root(matrix<size_t> &Xorder_std, std::unique_ptr<X_st
 
         mat mu_pred = mu + Sig * rnorm;
         for (size_t i = 0; i < Ntest; i++){
-             yhats_test_xinfo[sweeps][test_ind[i]] += mu_pred(i) - this->theta_vector[0];
+             yhats_test_xinfo[sweeps][test_ind[i]] += mu_pred(i); //- this->theta_vector[0];
         }
     }
 

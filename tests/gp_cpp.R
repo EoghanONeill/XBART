@@ -91,18 +91,18 @@ y = f + rnorm(n, 0, sigma)
 x_range <- sapply(1:d, function(i, x) max(x[,i]) - min(x[,i]), x)
 
 # # replicate test set
-# nt = 30
-# nrep = 1 # 100 replicates per dp
-# xt = matrix(0, nt * nrep, d) # fix all variables but one
-# x1 = seq(min(x[,1]) - 4, max(x[,1]) + 4, length.out = nt)
-# xt[,1] = sapply(x1, rep, nrep) # repeat each dp nrep times
+nt = 30
+nrep = 1 # 100 replicates per dp
+xt = matrix(0, nt * nrep, d) # fix all variables but one
+x1 = seq(min(x[,1]) - 4, max(x[,1]) + 4, length.out = nt)
+xt[,1] = sapply(x1, rep, nrep) # repeat each dp nrep times
 
 # random test set
-nt = 1000
-xt = matrix(rnorm(nt * d), nt, d)
-x1 = xt[,1]
-ft = f_true(xt, func)
-yt = ft + rnorm(nt, 0, sigma)
+# nt = 1000
+# xt = matrix(rnorm(nt * d), nt, d)
+# x1 = xt[,1]
+# ft = f_true(xt, func)
+# yt = ft + rnorm(nt, 0, sigma)
 
 
 # uniform test set
@@ -123,6 +123,10 @@ yt = ft + rnorm(nt, 0, sigma)
 tau = var(y)/10
 n_trees = 10
 fit <- XBART(y=matrix(y),  X=x, Xtest=xt, num_trees=n_trees, Nmin = 10,num_sweeps=200, burnin = 15, tau = tau, sampling_tau = TRUE)
+yhat <- t(apply(fit$yhats_test, 1, function(x) rnorm(length(x), x, fit$sigma[10,])))
+xbart.upper <- apply(yhat, 1, quantile, 0.975, na.rm = TRUE)
+xbart.lower <- apply(yhat, 1, quantile, 0.025, na.rm = TRUE)
+coverage <- (yt <= xbart.lower & yt >= xbart.lower)
 
 gp_pred <- predict.gp(fit, as.matrix(y), x, xt, theta = 10, tau = var(y)/n_trees, p_categorical = 0)
 
@@ -141,8 +145,8 @@ x1 <- xt[,1]
 plot(x1, yt, pch = 19, cex = 0.5,ylim=c(-50,100))
 
 lines(x1, ft)
-# lines(x1, xbart.upper, col = 2)
-# lines(x1, xbart.lower, col = 2)
+lines(x1, xbart.upper, col = 2)
+lines(x1, xbart.lower, col = 2)
 lines(x1, gp.upper, col = 3)
 lines(x1, gp.lower, col = 3)
 abline(v = min(x[,1]), col = 4)
