@@ -128,7 +128,7 @@ xbart.upper <- apply(yhat, 1, quantile, 0.975, na.rm = TRUE)
 xbart.lower <- apply(yhat, 1, quantile, 0.025, na.rm = TRUE)
 coverage <- (yt <= xbart.lower & yt >= xbart.lower)
 
-gp_pred <- predict.gp(fit, as.matrix(y), x, xt, theta = 10, tau = var(y)/n_trees, p_categorical = 0)
+gp_pred <- predict.gp(fit, as.matrix(y), x, xt, theta = 0.1, tau = var(y)/n_trees, p_categorical = 0)
 
 
 gp_yhat <- t(apply(gp_pred, 1, function(x) rnorm(length(x), x, fit$sigma[10,])))
