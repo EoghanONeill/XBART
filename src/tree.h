@@ -35,8 +35,6 @@ struct node_info
     std::size_t id; //node id
     std::size_t v;  //variable
     double c;       //cut point // different from BART
-    double v_min;
-    double v_max;
     std::vector<double> theta_vector;
 };
 
@@ -86,10 +84,6 @@ public:
 
     void setc(double c) { this->c = c; }
 
-    void setv_min(double v_min) { this->v_min = v_min; }
-    
-    void setv_max(double v_max) { this->v_max = v_max; }
-
     void settau(double tau_prior, double tau_post) {this->tau_prior = tau_prior; this->tau_post = tau_post;}
 
     //get
@@ -102,10 +96,6 @@ public:
     size_t getv() const { return v; }
 
     double getc() const { return c; }
-
-    double getv_min() const { return v_min; }
-    
-    double getv_max() const { return v_max; }
 
     size_t getc_index() const { return c_index; }
 
@@ -170,8 +160,8 @@ public:
     void grow_from_root_separate_tree(std::unique_ptr<State> &state, matrix<size_t> &Xorder_std, std::vector<size_t> &X_counts, std::vector<size_t> &X_num_unique, Model *model, 
     std::unique_ptr<X_struct> &x_struct, const size_t &sweeps, const size_t &tree_ind, bool update_theta, bool update_split_prob, bool grow_new_tree);
 
-    void gp_predict_from_root(matrix<size_t> &Xorder_std, std::unique_ptr<X_struct> &x_struct, std::vector<size_t> &X_counts, std::vector<size_t> &X_num_unique, 
-    matrix<size_t> &Xtestorder_std, std::unique_ptr<X_struct> &xtest_struct, std::vector<size_t> &Xtest_counts, std::vector<size_t> &Xtest_num_unique, 
+    void gp_predict_from_root(matrix<size_t> &Xorder_std, std::unique_ptr<gp_struct> &x_struct, std::vector<size_t> &X_counts, std::vector<size_t> &X_num_unique, 
+    matrix<size_t> &Xtestorder_std, std::unique_ptr<gp_struct> &xtest_struct, std::vector<size_t> &Xtest_counts, std::vector<size_t> &Xtest_num_unique, 
     matrix<double> &yhats_test_xinfo, std::vector<bool> active_var, const size_t &p_categorical, const size_t &sweeps, const size_t &tree_ind, const double &theta, const double &tau);
     
     tree_p bn(double *x, matrix<double> &xi); //find Bottom Node, original BART version
@@ -179,10 +169,6 @@ public:
     tree_p bn_std(double *x); // find Bottom Node, std version, compare
 
     tree_p search_bottom_std(const double *X, const size_t &i, const size_t &p, const size_t &N);
-
-    std::vector<double> gettheta_outsample(const double *X, const size_t &i, const size_t &p, const size_t &N, std::mt19937 &gen, double &d, double &s);
-
-    void get_gp_info(const double *X, const size_t &i, const size_t &p, const size_t &N, std::vector<bool> &active_var, double &theta, size_t &leaf_id);
 
     void rg(size_t v, size_t *L, size_t *U); //recursively find region [L,U] for var v
     //node functions--------------------
@@ -240,10 +226,6 @@ private:
     size_t c_index;
 
     double c;
-
-    double v_min; // variable range
-
-    double v_max; // variable range
 
     double tau_prior, tau_post; // track tau for nomal model outlier prediction. should have better place to store them.
 
