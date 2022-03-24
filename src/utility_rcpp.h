@@ -3,7 +3,7 @@
 
 #include<RcppArmadillo.h>
 #include "X_struct.h"
-#include "omp.h"
+// #include "omp.h"
 
 
 

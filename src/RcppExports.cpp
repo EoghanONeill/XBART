@@ -7,6 +7,11 @@
 
 using namespace Rcpp;
 
+#ifdef RCPP_USE_GLOBAL_ROSTREAM
+Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
+Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
+#endif
+
 // XBART_CLT_cpp
 Rcpp::List XBART_CLT_cpp(arma::mat y, arma::mat X, arma::mat Xtest, size_t num_trees, size_t num_sweeps, size_t max_depth, size_t n_min, size_t num_cutpoints, double alpha, double beta, double tau, double no_split_penality, size_t burnin, size_t mtry, size_t p_categorical, double kap, double s, bool verbose, bool parallel, bool set_random_seed, size_t random_seed, bool sample_weights_flag, double nthread);
 RcppExport SEXP _XBART_XBART_CLT_cpp(SEXP ySEXP, SEXP XSEXP, SEXP XtestSEXP, SEXP num_treesSEXP, SEXP num_sweepsSEXP, SEXP max_depthSEXP, SEXP n_minSEXP, SEXP num_cutpointsSEXP, SEXP alphaSEXP, SEXP betaSEXP, SEXP tauSEXP, SEXP no_split_penalitySEXP, SEXP burninSEXP, SEXP mtrySEXP, SEXP p_categoricalSEXP, SEXP kapSEXP, SEXP sSEXP, SEXP verboseSEXP, SEXP parallelSEXP, SEXP set_random_seedSEXP, SEXP random_seedSEXP, SEXP sample_weights_flagSEXP, SEXP nthreadSEXP) {

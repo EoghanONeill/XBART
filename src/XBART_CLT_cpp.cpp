@@ -5,7 +5,7 @@
 #include <chrono>
 #include "mcmc_loop.h"
 #include "X_struct.h"
-#include "omp.h"
+// #include "omp.h"
 #include "utility_rcpp.h"
 
 using namespace std;
@@ -20,10 +20,10 @@ Rcpp::List XBART_CLT_cpp(arma::mat y, arma::mat X, arma::mat Xtest, size_t num_t
 
     // double nthread = 1;
 
-    if (parallel & (nthread == 0))
-    {
-        nthread = omp_get_max_threads();
-    }
+    // if (parallel & (nthread == 0))
+    // {
+    //     nthread = omp_get_max_threads();
+    // }
 
     size_t N = X.n_rows;
 
@@ -36,7 +36,7 @@ Rcpp::List XBART_CLT_cpp(arma::mat y, arma::mat X, arma::mat Xtest, size_t num_t
     size_t p_continuous = p - p_categorical;
 
     // suppose first p_continuous variables are continuous, then categorical
-
+// 
     assert(mtry <= p);
 
     assert(burnin <= num_sweeps);

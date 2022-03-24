@@ -1,7 +1,7 @@
 #include "utility_rcpp.h"
 
 
-// [[Rcpp::plugins(openmp)]]
+// // [[Rcpp::plugins(openmp)]]
 
 ////////////////////////////////////////////////////////////////////////
 //                                                                    //

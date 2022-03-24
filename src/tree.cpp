@@ -1,7 +1,7 @@
 #include "tree.h"
 // #include <RcppArmadilloExtensions/sample.h>
 #include <chrono>
-#include "omp.h"
+// #include "omp.h"
 #include <ctime>
 
 using namespace std;
@@ -848,7 +848,7 @@ void tree::grow_from_root_entropy(std::unique_ptr<State> &state, matrix<size_t> 
                 x_struct->data_pointers[tree_ind][Xorder_std[0][i]] = &this->theta_vector;
             }
 // update lambdas in state
-#pragma omp critical
+// #pragma omp critical
             state->lambdas[tree_ind].push_back(this->theta_vector);
         }
 
@@ -898,7 +898,7 @@ void tree::grow_from_root_entropy(std::unique_ptr<State> &state, matrix<size_t> 
                 x_struct->data_pointers[tree_ind][Xorder_std[0][i]] = &this->theta_vector;
             }
 // update lambdas in state
-#pragma omp critical
+// #pragma omp critical
             state->lambdas[tree_ind].push_back(this->theta_vector);
         }
         // cout << "unusual return "  << endl;
@@ -909,7 +909,7 @@ void tree::grow_from_root_entropy(std::unique_ptr<State> &state, matrix<size_t> 
     {
 // If do not update split prob ONLY
 // grow from root, initialize new nodes
-#pragma omp critical
+// #pragma omp critical
         state->split_count_current_tree[split_var] += 1;
 
         tree::tree_p lchild = new tree(model->getNumClasses(), this, model->dim_suffstat);
@@ -1060,7 +1060,7 @@ void tree::grow_from_root_separate_tree(std::unique_ptr<State> &state, matrix<si
                     exit(1);
                 }
             }
-#pragma omp critical
+// #pragma omp critical
             state->lambdas_separate[tree_ind][j].push_back(this->theta_vector[j]);
         }
 
@@ -1101,7 +1101,7 @@ void tree::grow_from_root_separate_tree(std::unique_ptr<State> &state, matrix<si
             {
                 x_struct->data_pointers_multinomial[j][tree_ind][Xorder_std[0][i]] = &this->theta_vector;
             }
-#pragma omp critical
+// #pragma omp critical
             state->lambdas_separate[tree_ind][j].push_back(this->theta_vector[j]);
         }
         return;
@@ -1111,7 +1111,7 @@ void tree::grow_from_root_separate_tree(std::unique_ptr<State> &state, matrix<si
     {
 // If do not update split prob ONLY
 // grow from root, initialize new nodes
-#pragma omp critical
+// #pragma omp critical
         state->split_count_current_tree[split_var] += 1;
 
         tree::tree_p lchild = new tree(model->getNumClasses(), this, model->dim_suffstat);
@@ -1154,16 +1154,16 @@ void tree::grow_from_root_separate_tree(std::unique_ptr<State> &state, matrix<si
     {
         split_xorder_std_continuous(Xorder_left_std, Xorder_right_std, split_var, split_point, Xorder_std, model, x_struct, state, this);
     }
-#pragma omp task untied shared(state, Xorder_std, x_struct, model, tree_ind, sweeps)
+// #pragma omp task untied shared(state, Xorder_std, x_struct, model, tree_ind, sweeps)
     {
         this->l->grow_from_root_separate_tree(state, Xorder_left_std, X_counts_left, X_num_unique_left, model, x_struct, sweeps, tree_ind, update_theta, update_split_prob, grow_new_tree);
     }
-#pragma omp task untied shared(state, Xorder_std, x_struct, model, tree_ind, sweeps)
+// #pragma omp task untied shared(state, Xorder_std, x_struct, model, tree_ind, sweeps)
     {
         this->r->grow_from_root_separate_tree(state, Xorder_right_std, X_counts_right, X_num_unique_right, model, x_struct, sweeps, tree_ind, update_theta, update_split_prob, grow_new_tree);
     }
 
-#pragma omp taskwait
+// #pragma omp taskwait
 
     return;
 }
@@ -1660,7 +1660,7 @@ void calculate_loglikelihood_continuous(std::vector<double> &loglike, const std:
         // #pragma omp parallel for if(state->use_all & state->p_continuous * state->nthread > 120) schedule(dynamic, 1) default(none) shared(N_Xorder, state, subset_vars, Xorder_std, model, candidate_index, tree_pointer, loglike, loglike_max)
         for (auto i : subset_vars)
         {
-#pragma omp task firstprivate(i) shared(N_Xorder, Xorder_std, subset_vars, state, tree_pointer, candidate_index, model, loglike, loglike_max)
+// #pragma omp task firstprivate(i) shared(N_Xorder, Xorder_std, subset_vars, state, tree_pointer, candidate_index, model, loglike, loglike_max)
             {
                 // size_t i = subset_vars[var_i];
 
@@ -1683,7 +1683,7 @@ void calculate_loglikelihood_continuous(std::vector<double> &loglike, const std:
                 }
             }
         }
-#pragma omp taskwait
+// #pragma omp taskwait
     }
     else
     {
@@ -1699,7 +1699,7 @@ void calculate_loglikelihood_continuous(std::vector<double> &loglike, const std:
         // state->p_continuous * state->nthread > 100 // this is approximately the cost to set up parallel for
         for (auto i : subset_vars)
         {
-#pragma omp task firstprivate(i) shared(Xorder_std, subset_vars, state, tree_pointer, candidate_index2, model, loglike, loglike_max)
+// #pragma omp task firstprivate(i) shared(Xorder_std, subset_vars, state, tree_pointer, candidate_index2, model, loglike, loglike_max)
             {
                 if (i < state->p_continuous)
                 {
@@ -1719,7 +1719,7 @@ void calculate_loglikelihood_continuous(std::vector<double> &loglike, const std:
                 }
             }
         }
-#pragma omp taskwait
+// #pragma omp taskwait
     }
 }
 
@@ -1744,7 +1744,7 @@ void calculate_loglikelihood_categorical(std::vector<double> &loglike, size_t &l
 
         if ((i >= state->p_continuous) && (X_num_unique[i - state->p_continuous] > 1))
         {
-#pragma omp task firstprivate(i) shared(x_struct, state, model, X_counts, Xorder_std, loglike_start, loglike, loglike_max, tree_pointer)
+// #pragma omp task firstprivate(i) shared(x_struct, state, model, X_counts, Xorder_std, loglike_start, loglike, loglike_max, tree_pointer)
             {
                 std::vector<double> temp_suff_stat(model->dim_suffstat);
                 std::fill(temp_suff_stat.begin(), temp_suff_stat.end(), 0.0);
@@ -1794,7 +1794,7 @@ void calculate_loglikelihood_categorical(std::vector<double> &loglike, size_t &l
             }
         }
     }
-#pragma omp taskwait
+// #pragma omp taskwait
 }
 
 void calculate_likelihood_no_split(std::vector<double> &loglike, size_t &N_Xorder, double &loglike_max, Model *model, std::unique_ptr<X_struct> &x_struct, size_t &total_categorical_split_candidates, std::unique_ptr<State> &state, tree *tree_pointer)

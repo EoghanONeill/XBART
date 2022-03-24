@@ -5,7 +5,7 @@
 #include <chrono>
 #include "mcmc_loop.h"
 #include "X_struct.h"
-#include "omp.h"
+// #include "omp.h"
 #include "utility_rcpp.h"
 
 using namespace std;
@@ -46,8 +46,8 @@ double hmult = 1, double heps = 0.1){
         COUT << "Sample " << mtry << " out of " << p << " variables when grow each tree." << endl;
     }
 
-    if (parallel && (nthread == 0)) nthread = omp_get_max_threads();
-    omp_set_num_threads(nthread);
+    // if (parallel && (nthread == 0)) nthread = omp_get_max_threads();
+    // omp_set_num_threads(nthread);
 
     arma::umat Xorder(X.n_rows, X.n_cols);
     matrix<size_t> Xorder_std;

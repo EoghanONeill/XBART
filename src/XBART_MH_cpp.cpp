@@ -5,7 +5,7 @@
 #include <chrono>
 #include "mcmc_loop.h"
 #include "X_struct.h"
-#include "omp.h"
+// #include "omp.h"
 #include "utility_rcpp.h"
 
 using namespace std;
@@ -20,10 +20,10 @@ Rcpp::List XBART_MH_cpp(arma::mat y, arma::mat X, arma::mat Xtest, size_t num_tr
 
     // double nthread = 1;
 
-    if (parallel && (nthread == 0))
-    {
-        nthread = omp_get_max_threads();
-    }
+    // if (parallel && (nthread == 0))
+    // {
+    //     nthread = omp_get_max_threads();
+    // }
 
     size_t N = X.n_rows;
 
